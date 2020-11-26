@@ -79,7 +79,7 @@ class file_selection_list(QWidget):
             self.working_dir_path = path
 
     def open_file(self):
-        self.current_file = str(self.list.currentIndex().data())
+        self.current_file = str(self.list.currentIndex())
         print(self.current_file)
 
     def save(self):
