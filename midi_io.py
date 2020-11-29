@@ -12,4 +12,5 @@ def play_note(n):
     midiout.send_message(note_on)
 
 def destroy_midi_out():
-    del midiout
+    print()
+    # del midiout

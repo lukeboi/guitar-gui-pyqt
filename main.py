@@ -29,28 +29,29 @@ class midi_handling_bar(QWidget):
 
         midi_io.init()
 
-        self.layout = QHBoxLayout()
-        self.widget = QWidget()
-        self.widget.setLayout(self.layout)
+        self.l = QHBoxLayout()
+        # self.widget = QWidget()
+        # self.widget.setLayout(self.l)
+        self.setLayout(self.l)
 
         self.refresh_button = QPushButton("Refresh MIDI Devices")
         self.refresh_button.setMaximumWidth(130)
         self.refresh_button.clicked.connect(self.refresh_button_pressed)
 
-        self.select_dropdown = QComboBox(self)
+        self.select_dropdown = QComboBox()
         self.select_dropdown.activated[str].connect(self.port_selected)
-        self.select_dropdown.setMaximumWidth(250)
 
         self.play_button = QPushButton("Play Piece")
         self.play_button.setMaximumWidth(130)
         self.play_button.clicked.connect(self.refresh_button_pressed)
 
-        layout.addWidget(self.refresh_button)
-        layout.addWidget(self.select_dropdown)
-        layout.addWidget(self.play_button)
+        self.l.addWidget(self.refresh_button)
+        self.l.addWidget(self.select_dropdown)
+        self.l.addWidget(self.play_button)
 
         self.refresh_button_pressed()
         self.port_selected()
+        self.show()
 
     def refresh_button_pressed(self):
         available_ports = midi_io.midiout.get_ports()
@@ -66,16 +67,16 @@ class file_speific_buttons(QWidget):
         QWidget.__init__(self)
 
         self.layout = QHBoxLayout()
-        self.widget = QWidget()
-        self.widget.setLayout(self.layout)
+        self.setLayout(self.layout)
 
         self.save_button = QPushButton("Save File")
         self.save_button.setMaximumWidth(130)
-        layout.addWidget(self.save_button)
+        self.layout.addWidget(self.save_button)
 
         self.save_as_button = QPushButton("Save File As")
         self.save_as_button.setMaximumWidth(130)
-        layout.addWidget(self.save_as_button)
+        self.layout.addWidget(self.save_as_button)
+        self.show()
 
 
 
@@ -95,10 +96,9 @@ class file_selection_list(QWidget):
         self.list.selectionModel().selectionChanged.connect(self.open_file)
 
         self.layout = QHBoxLayout()
-        self.widget = QWidget()
-        self.widget.setLayout(self.layout)
+        self.setLayout(self.layout)
 
-        layout.addWidget(self.list)
+        self.layout.addWidget(self.list)
 
     def open_folder(self):
         path = QFileDialog.getExistingDirectory(window, "Open Folder")
@@ -167,22 +167,23 @@ app = QApplication([])
 app.setApplicationName("Guitar Controller")
 window = MainWindow()
 
-layout = QVBoxLayout()
+window_layout = QVBoxLayout()
 
 text = QPlainTextEdit()
 
 
 central = QWidget()
-central.setLayout(layout)
+central.setLayout(window_layout)
 
 midi_bar = midi_handling_bar()
 file_buttons = file_speific_buttons()
 file_list = file_selection_list()
 
-layout.addWidget(midi_bar, 0)
-# layout.addWidget(file_buttons, 0)
-layout.addWidget(file_list, 0)
-layout.addWidget(text, 0)
+window_layout.addWidget(midi_bar)
+window_layout.addWidget(file_buttons, 0)
+window_layout.addWidget(file_list)
+window_layout.addWidget(text)
+
 window.setCentralWidget(central)
 window.resize(600, 450)
 
