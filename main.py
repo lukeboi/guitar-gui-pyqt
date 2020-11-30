@@ -59,6 +59,9 @@ class midi_handling_bar(QWidget):
         self.select_dropdown.addItems(available_ports)
 
     def port_selected(self):
+        print("h " + str(self.select_dropdown.currentIndex()))
+
+        midi_io.midiout.close_port()
         midi_io.midiout.open_port(self.select_dropdown.currentIndex())
 
 
@@ -160,7 +163,7 @@ def play_piece(piece_str):
                     midi_io.play_note(int(n))
 
             elif command == "wait":
-                time.sleep(int(args))
+                time.sleep(float(args))
 
 
 app = QApplication([])
