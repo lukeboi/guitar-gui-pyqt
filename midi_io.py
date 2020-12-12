@@ -1,7 +1,7 @@
 import time
 import rtmidi
 
-midiout = rtmidi.MidiOut()
+# midiout = rtmidi.MidiOut()
 
 def init():
     print()

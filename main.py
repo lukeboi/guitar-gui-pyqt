@@ -4,6 +4,7 @@ import rtmidi
 from PyQt5.QtCore import QDir, QRect
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QMessageBox
 
 import midi_io
 
@@ -34,19 +35,19 @@ class midi_handling_bar(QWidget):
         # self.widget.setLayout(self.l)
         self.setLayout(self.l)
 
-        self.refresh_button = QPushButton("Refresh MIDI Devices")
-        self.refresh_button.setMaximumWidth(130)
-        self.refresh_button.clicked.connect(self.refresh_button_pressed)
-
-        self.select_dropdown = QComboBox()
-        self.select_dropdown.activated[str].connect(self.port_selected)
+        # self.refresh_button = QPushButton("Refresh MIDI Devices")
+        # self.refresh_button.setMaximumWidth(130)
+        # self.refresh_button.clicked.connect(self.refresh_button_pressed)
+        #
+        # self.select_dropdown = QComboBox()
+        # self.select_dropdown.activated[str].connect(self.port_selected)
 
         self.play_button = QPushButton("Play Piece")
         self.play_button.setMaximumWidth(130)
         self.play_button.clicked.connect(self.refresh_button_pressed)
 
-        self.l.addWidget(self.refresh_button)
-        self.l.addWidget(self.select_dropdown)
+        # self.l.addWidget(self.refresh_button)
+        # self.l.addWidget(self.select_dropdown)
         self.l.addWidget(self.play_button)
 
         self.refresh_button_pressed()
@@ -54,15 +55,15 @@ class midi_handling_bar(QWidget):
         self.show()
 
     def refresh_button_pressed(self):
-        available_ports = midi_io.midiout.get_ports()
-        self.select_dropdown.clear()
-        self.select_dropdown.addItems(available_ports)
+        1
+        # available_ports = midi_io.midiout.get_ports()
+        # self.select_dropdown.clear()
+        # self.select_dropdown.addItems(available_ports)
 
     def port_selected(self):
-        print("h " + str(self.select_dropdown.currentIndex()))
+        1
+        # print("h " + str(self.select_dropdown.currentIndex()))
 
-        midi_io.midiout.close_port()
-        midi_io.midiout.open_port(self.select_dropdown.currentIndex())
 
 
 class file_speific_buttons(QWidget):
@@ -103,6 +104,22 @@ class file_selection_list(QWidget):
 
         self.layout.addWidget(self.list)
 
+    def new_file(self):
+        if text.document().isModified():
+            answer = QMessageBox.question(
+                window, None,
+                "You have unsaved changes. Save before opening another file?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+            )
+            if answer & QMessageBox.Save:
+                self.save()
+
+            elif answer & QMessageBox.Cancel:
+                return
+
+        self.current_file = None
+        text.setPlainText("# new file")
+
     def open_folder(self):
         path = QFileDialog.getExistingDirectory(window, "Open Folder")
         if path:
@@ -142,6 +159,15 @@ class file_selection_list(QWidget):
             self.save()
 
 def play_piece(piece_str):
+    midiout = rtmidi.MidiOut()
+    midiout.close_port()
+    print(midiout.get_ports())
+    try:
+        midiout.open_port(1)
+    except:
+        print("Error!")
+        QMessageBox.about(window, "Error", "Port wasn't found. Make sure the MIDI USB adapter is plugged in!")
+
     piece_commands = piece_str.splitlines()
     for i in piece_commands:
         print(i)
@@ -160,10 +186,16 @@ def play_piece(piece_str):
                 note_nums = args.replace(" ", "").split(",")
                 for n in note_nums:
                     print("playing note: " + str(n))
-                    midi_io.play_note(int(n))
+                    # midi_io.play_note(int(n))
+                    note_on = [0x90, int(n), 100]  # channel 1, note n, velocity 100
+                    midiout.send_message(note_on)
+
 
             elif command == "wait":
                 time.sleep(float(args))
+
+    midiout.close_port()
+    del midiout
 
 
 app = QApplication([])
@@ -216,7 +248,10 @@ menu.addAction(save_action)
 
 save_as_action = QAction("Save &As...")
 
-
+new_action = QAction("New File")
+new_action.setShortcut(QKeySequence.New)
+new_action.triggered.connect(file_list.new_file)
+menu.addAction(new_action)
 
 
 save_as_action.triggered.connect(file_list.save_as)
