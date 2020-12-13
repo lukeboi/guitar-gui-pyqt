@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QMessageBox
 
 import midi_io
 
-
 class MainWindow(QMainWindow):
     def closeEvent(self, e):
         if not text.document().isModified():
