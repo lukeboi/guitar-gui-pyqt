@@ -5,6 +5,8 @@ from PyQt5.QtCore import QDir, QRect
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QSettings
+
 
 import midi_io
 
@@ -119,11 +121,15 @@ class file_selection_list(QWidget):
         self.current_file = None
         text.setPlainText("# new file")
 
-    def open_folder(self):
+    def open_folder_with_dialog(self):
         path = QFileDialog.getExistingDirectory(window, "Open Folder")
         if path:
             self.list.setRootIndex(self.fileModel.setRootPath(str(path)))
             self.working_dir_path = path
+
+    def open_folder(self, path):
+        self.list.setRootIndex(self.fileModel.setRootPath(str(path)))
+        self.working_dir_path = path
 
     def open_file(self):
         if text.document().isModified():
@@ -229,10 +235,14 @@ midi_bar.play_button.clicked.connect(lambda: play_piece(str(text.toPlainText()))
 menu = window.menuBar().addMenu("&File")
 open_action = QAction("&Open Folder")
 
+settings = QSettings('GuitarController', 'GuitarController')
+saved_folder = settings.value("working_folder", type=str)
+file_list.open_folder(saved_folder)
+
+print("setting: " + saved_folder)
 
 
-
-open_action.triggered.connect(file_list.open_folder)
+open_action.triggered.connect(file_list.open_folder_with_dialog)
 open_action.setShortcut(QKeySequence.Open)
 menu.addAction(open_action)
 
@@ -280,4 +290,7 @@ about_action.triggered.connect(show_about_dialog)
 
 window.show()
 app.exec_()
+
+settings.setValue("working_folder", file_list.working_dir_path)
+settings.sync()
 midi_io.destroy_midi_out()
