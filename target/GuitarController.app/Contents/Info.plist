@@ -17,9 +17,9 @@
     <key>LSBackgroundOnly</key>
     <string>0</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.1</string>
+    <string>0.2</string>
     <key>CFBundleVersion</key>
-    <string>0.1</string>
+    <string>0.2</string>
     <key>CFBundleName</key>
     <string>GuitarController</string>
     <!-- Enable Retina support on OS X: -->
